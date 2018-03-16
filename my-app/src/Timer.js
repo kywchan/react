@@ -16,7 +16,7 @@ const Label = styled.label`
   background: transparent;
   color: black;
 }`;
-class Timer extends Component {    
+class Example extends Component {    
     constructor() {
       super();
       // state has the following properties
@@ -29,7 +29,9 @@ class Timer extends Component {
       // bind early and often
       this.countDown = this.countDown.bind(this);
       this.workflowTimer = this.workflowTimer.bind(this);
-      this.stopTImer = this.stopTimer.bind(this);
+      this.stopTimer = this.stopTimer.bind(this);
+      this.addTime = this.addTime.bind(this);
+
     }
   
     secondsToTime(secs){
@@ -56,8 +58,10 @@ class Timer extends Component {
   
     stopTimer = () => {
         console.log(this.state.timestamp, this.state.workflow, "stopTimer", this.state);
+        var date = new Date();
         clearInterval(this.timer);
         this.setState({
+            timestamp: date,
             time: this.secondsToTime(60),
             seconds: 60,
             workflow: "Start"
@@ -66,9 +70,11 @@ class Timer extends Component {
 
     workflowTimer = () => {
         console.log(this.state.timestamp, this.state.workflow, "workflowTImer", this.state);
+        var date = new Date();
         switch (this.state.workflow) {
             case "Start":
                 this.setState({
+                    timestamp: date,
                     workflow: "Pause" 
                 });
                 this.timer = setInterval(() => this.countDown(), 1000);
@@ -76,11 +82,13 @@ class Timer extends Component {
             case "Pause":
                 clearInterval(this.timer);
                 this.setState({
+                    timestamp: date,
                     workflow: "Resume" 
                 });
                 break;
             case "Resume":
                 this.setState({
+                    timestamp: date,
                     workflow: "Pause" 
                  });
                  this.timer = setInterval(() => this.countDown(), 1000);
@@ -90,10 +98,11 @@ class Timer extends Component {
         }
       }
 
-    setTimer = (param) => {
+    addTime = (param) => {
+        var target = this.state.seconds + 30;
         this.setState({
-            time: this.secondsToTime(param),
-            seconds: param          
+            time: this.secondsToTime(target),
+            seconds: target
         });         
     }
 
@@ -119,10 +128,12 @@ class Timer extends Component {
             <br/>
             <Button onClick={this.workflowTimer}>{this.state.workflow}</Button>
             <Button onClick={this.stopTimer}>Cancel</Button>
+            <Button onClick={this.addTime}>+30 sec</Button>
+
         </div>
       );
     }
   }
   
-  export default Timer;
+  export default Example;
 
