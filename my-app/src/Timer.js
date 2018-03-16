@@ -1,14 +1,34 @@
 import React, { Component } from 'react';
- 
-class Example extends Component {    
+import styled from 'styled-components';
+
+const Button = styled.button`
+  border-radius: 3px;
+  padding: 0.25em 1em;
+  margin: 0em 1em;
+  background: transparent;
+  color: black;
+  border: 2px solid black;
+}`; 
+
+const Label = styled.label`
+  padding: 0.25em 1em;
+  margin: 0em 1em;
+  background: transparent;
+  color: black;
+}`;
+class Timer extends Component {    
     constructor() {
       super();
-      this.state = { time: {}, seconds: 60, play: false };
+      // state has the following properties
+      // time - string representation of seconds
+      // seconds - remaining time in seconds
+      this.state = { timestamp: new Date(), time: {}, seconds: 60, workflow: "Start" };
+      
+      // context reference
       this.timer = 0;
-
-      this.startTimer = this.startTimer.bind(this);
+      // bind early and often
       this.countDown = this.countDown.bind(this);
-      this.pauseTimer = this.pauseTimer.bind(this);
+      this.workflowTimer = this.workflowTimer.bind(this);
       this.stopTImer = this.stopTimer.bind(this);
     }
   
@@ -28,13 +48,6 @@ class Example extends Component {
       };
       return obj;
     }
-
-    buttonStatusToString(param) {
-        if (param === true) {
-            return "Pause"
-        }
-        else return "Start"
-    }
   
     componentDidMount() {
       let timeLeftVar = this.secondsToTime(this.state.seconds);
@@ -42,25 +55,40 @@ class Example extends Component {
     }
   
     stopTimer = () => {
+        console.log(this.state.timestamp, this.state.workflow, "stopTimer", this.state);
         clearInterval(this.timer);
         this.setState({
-            time: this.secondsToTime(0),
-            seconds: 0,
-            play: false
+            time: this.secondsToTime(60),
+            seconds: 60,
+            workflow: "Start"
           });        
     }
 
-    pauseTimer = () => {
-        clearInterval(this.timer);
-        if (this.state.play === true) {
-            this.setState({
-                play: false
-            });       
+    workflowTimer = () => {
+        console.log(this.state.timestamp, this.state.workflow, "workflowTImer", this.state);
+        switch (this.state.workflow) {
+            case "Start":
+                this.setState({
+                    workflow: "Pause" 
+                });
+                this.timer = setInterval(() => this.countDown(), 1000);
+                break;
+            case "Pause":
+                clearInterval(this.timer);
+                this.setState({
+                    workflow: "Resume" 
+                });
+                break;
+            case "Resume":
+                this.setState({
+                    workflow: "Pause" 
+                 });
+                 this.timer = setInterval(() => this.countDown(), 1000);
+                break;
+            default:
+                console.log(":( - Bad code. We'll keep getting better.");        
         }
-        else {
-            this.timer = setInterval(() => this.countDown(), 1000);    
-        }    
-    }
+      }
 
     setTimer = (param) => {
         this.setState({
@@ -69,17 +97,12 @@ class Example extends Component {
         });         
     }
 
-    startTimer = () => {
-        this.timer = setInterval(() => this.countDown(), 1000);
-    }
-
     countDown() {
       // Remove one second, set state so a re-render happens.
       let seconds = this.state.seconds - 1;
       this.setState({
         time: this.secondsToTime(seconds),
         seconds: seconds,
-        play: true
       });
       
       // Check if we're at zero.
@@ -91,16 +114,15 @@ class Example extends Component {
     render() {
       return(
         <div>
-          <button onClick={this.startTimer}>Start</button>
-
-          <button onClick={this.pauseTimer}>{this.buttonStatusToString(this.state.play)}</button>
-          
-          <button onClick={this.stopTimer}>Cancel</button>
-          m: {this.state.time.m} s: {this.state.time.s}
+            <Label>m: {this.state.time.m} s: {this.state.time.s}</Label>
+            <br/>
+            <br/>
+            <Button onClick={this.workflowTimer}>{this.state.workflow}</Button>
+            <Button onClick={this.stopTimer}>Cancel</Button>
         </div>
       );
     }
   }
   
-  export default Example;
+  export default Timer;
 
