@@ -16,6 +16,7 @@ const Label = styled.label`
   background: transparent;
   color: black;
 }`;
+
 class Example extends Component {    
     constructor() {
       super();
